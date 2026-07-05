@@ -1,0 +1,8 @@
+{"ts": "2026-07-05T09:00:00.000+00:00", "session_id": "demo-2026", "tool_name": "Read", "file_path": "app/todo/core.py", "command": null}
+{"ts": "2026-07-05T09:00:03.100+00:00", "session_id": "demo-2026", "tool_name": "Edit", "file_path": "app/todo/core.py", "command": null}
+{"ts": "2026-07-05T09:00:05.400+00:00", "session_id": "demo-2026", "tool_name": "Write", "file_path": "app/todo/test_core.py", "command": null}
+{"ts": "2026-07-05T09:00:47.900+00:00", "session_id": "demo-2026", "tool_name": "Bash", "file_path": null, "command": "pytest -q"}
+{"ts": "2026-07-05T09:00:49.100+00:00", "session_id": "demo-2026", "tool_name": "Edit", "file_path": "app/todo/core.py", "command": null}
+{"ts": "2026-07-05T09:00:51.300+00:00", "session_id": "demo-2026", "tool_name": "Bash", "file_path": null, "command": "ruff check --fix ."}
+{"ts": "2026-07-05T09:00:53.600+00:00", "session_id": "demo-2026", "tool_name": "Bash", "file_path": null, "command": "mypy app experiments tools"}
+{"ts": "2026-07-05T09:01:19.900+00:00", "session_id": "demo-2026", "tool_name": "Bash", "file_path": null, "command": "git commit -m done"}
