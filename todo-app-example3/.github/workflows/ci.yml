@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    services:
+      # テストが実 Postgres を使うため、ジョブ専用の DB コンテナを立てる。
+      # ポートと認証情報はローカル開発の既定値（config.py / .env.example）に合わせる
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: todo
+          POSTGRES_PASSWORD: todo_dev_password
+          POSTGRES_DB: todo
+        ports:
+          - "5433:5432"
+        options: >-
+          --health-cmd "pg_isready -U todo"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        # このジョブの run はすべて backend/ で実行する
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: uv をセットアップ
+        uses: astral-sh/setup-uv@v5
+
+      - name: 依存関係をロックファイルから復元
+        run: uv sync --locked
+
+      - name: マイグレーションの適用と巻き戻しを検証
+        # up → down → up の往復で「downgrade が書けていない/壊れている」も検出する
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+
+      - name: テストを実行
+        run: uv run pytest
+
+  frontend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node.js をセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 依存関係をロックファイルから復元
+        # npm install ではなく ci: package-lock.json と完全一致で入れ、不一致なら失敗する
+        run: npm ci
+
+      - name: 型チェックとビルド
+        run: npm run build
+
+      - name: テストを実行
+        run: npm test

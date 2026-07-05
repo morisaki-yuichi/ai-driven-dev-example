@@ -1,0 +1,113 @@
+# todo-app-example3 — FastAPI + React で作る TODO アプリ教材
+
+CRUD 機能を持つマルチユーザー TODO アプリを、スクラム開発の流れに沿って作りながら、
+**中級エンジニアが一人で写経・追体験できる教材**としてドキュメント化するプロジェクトです。
+
+姉妹プロジェクト（Laravel + Plain HTML/CSS 版）と同じ題材をモダンな SPA 構成で
+作り直すことで、「サーバレンダリング vs SPA」「規約優先 vs 組み立て式」を
+対比学習できることを目指しています。
+
+## 技術スタック
+
+- バックエンド: Python 3.12 / FastAPI / SQLModel / Alembic / PostgreSQL（uv で依存管理）
+- フロントエンド: React + Vite + TypeScript / React Router / CSS Modules
+- テスト: pytest + httpx / Vitest + React Testing Library / Playwright
+- インフラ: Docker + Docker Compose / GitHub Actions
+
+## クイックスタート
+
+必要なもの: Docker（Compose 含む）、[uv](https://docs.astral.sh/uv/)、Git
+
+```bash
+git clone https://github.com/morisaki-yuichi/todo-app-example3.git
+cd todo-app-example3
+cp .env.example .env        # ポート等は必要に応じて .env で変更
+docker compose up -d --build
+```
+
+- API: http://localhost:8002/health が `{"status":"ok"}` を返せば起動成功
+- API ドキュメント（Swagger UI）: http://localhost:8002/docs
+
+データベースの準備（マイグレーション + 開発用データ）:
+
+```bash
+cd backend
+uv sync                          # 初回のみ（ロックファイルから依存を復元）
+uv run alembic upgrade head      # テーブル作成（これを忘れると /todos が 500 になる）
+uv run python -m scripts.seed    # デモユーザー2人 + TODO 17件を投入（任意）
+```
+
+TODO API はログイン必須（未ログインは 401）。認証は JWT（Bearer トークン）です:
+
+```bash
+# alice でログインしてトークンを取得し、自分の TODO 一覧を取得
+TOKEN=$(curl -s -X POST http://localhost:8002/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "alice@example.com", "password": "password123"}' \
+  | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
+curl -s http://localhost:8002/todos -H "Authorization: Bearer $TOKEN"
+```
+
+テスト（テスト専用 DB `todo_test` を自動作成して実行される）:
+
+```bash
+uv run pytest
+```
+
+フロントエンド（Vite 開発サーバ。API へは別オリジンで直接接続・CORS 許可済み）:
+
+```bash
+cd frontend
+npm install     # 初回のみ（package-lock.json から復元）
+npm run dev     # http://localhost:5176 が開く（ポートは .env の FRONT_PORT）
+npm test        # Vitest（単体テスト）
+npm run check   # lint + テスト + 型チェック込みビルド
+npm run e2e     # Playwright E2E（初回は npx playwright install chromium が必要）
+```
+
+## ドキュメント
+
+### プロジェクト全体
+
+- [初期プロンプト（教材の要件定義）](docs/initial-prompt.md)
+- [プロダクトロードマップ](docs/00_project/roadmap.md)
+- [QAログ（仕様決定の記録）](docs/00_project/qa-log.md)
+- [ユーザーストーリー](docs/00_project/user-stories.md)
+- [プロダクトバックログ（DoD つき）](docs/00_project/product-backlog.md)
+
+### 教材（読む順序のおすすめ）
+
+1. [キャッチアップ集（catch-up.md）](docs/00_project/catch-up.md) —
+   他フレームワーク経験者向けの対応表 + クイズ（クローン前でも読める入口）
+2. [開発トレースガイド（dev-walkthrough.md）](docs/00_project/dev-walkthrough.md) —
+   コミット履歴を目次に、写経で追体験するためのガイド（本編）
+3. [概念解説集（concepts.md）](docs/00_project/concepts.md) —
+   登場した概念を「定義 / なぜ必要か / このリポジトリでの実例」で整理（辞書）
+4. [演習編（exercises.md）](docs/00_project/exercises.md) —
+   写経前ドリルと写経後の機能追加演習（出口）
+
+### スプリント記録
+
+各スプリントのバックログ・レビュー・レトロスペクティブは `docs/01_sprintN/` 配下に
+スプリント終了ごとに追加します。
+
+- [スプリント1: 環境構築](docs/01_sprint1/backlog.md)
+  （[レビュー](docs/01_sprint1/review.md) / [レトロ](docs/01_sprint1/retrospective.md)）
+- [スプリント2: Read（一覧・詳細）](docs/02_sprint2/backlog.md)
+  （[レビュー](docs/02_sprint2/review.md) / [レトロ](docs/02_sprint2/retrospective.md)）
+- [スプリント3: Create / Update / Delete](docs/03_sprint3/backlog.md)
+  （[レビュー](docs/03_sprint3/review.md) / [レトロ](docs/03_sprint3/retrospective.md)）
+- [スプリント4: 認証・認可 + CI 固め](docs/04_sprint4/backlog.md)
+  （[レビュー](docs/04_sprint4/review.md) / [レトロ](docs/04_sprint4/retrospective.md)）— 第1部完了（M1）
+- [スプリント5: React 環境構築](docs/05_sprint5/backlog.md)
+  （[レビュー](docs/05_sprint5/review.md) / [レトロ](docs/05_sprint5/retrospective.md)）
+- [スプリント6: ログイン + TODO 一覧](docs/06_sprint6/backlog.md)
+  （[レビュー](docs/06_sprint6/review.md) / [レトロ](docs/06_sprint6/retrospective.md)）
+- [スプリント7: 詳細画面 + 作成・編集・削除フォーム](docs/07_sprint7/backlog.md)
+  （[レビュー](docs/07_sprint7/review.md) / [レトロ](docs/07_sprint7/retrospective.md)）
+- [スプリント8: JWT + CORS への移行](docs/08_sprint8/backlog.md)
+  （[レビュー](docs/08_sprint8/review.md) / [レトロ](docs/08_sprint8/retrospective.md)）
+- [スプリント9: TanStack Query 導入](docs/09_sprint9/backlog.md)
+  （[レビュー](docs/09_sprint9/review.md) / [レトロ](docs/09_sprint9/retrospective.md)）
+- [スプリント10: E2E + 教材最終化](docs/10_sprint10/backlog.md)
+  （[レビュー](docs/10_sprint10/review.md) / [レトロ](docs/10_sprint10/retrospective.md)）— 第2部完了（M2・全スプリント完走）
