@@ -24,3 +24,33 @@ jobs:
         run: mypy app experiments
       - name: テスト (pytest)
         run: pytest -q
+
+  example3-backend:
+    # 第4部: 取り込んだ人間製コードベース(todo-app-example3)の追加開発を CI で守る（リグレッション）。
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:17
+        env:
+          POSTGRES_USER: todo
+          POSTGRES_PASSWORD: todo_dev_password
+          POSTGRES_DB: todo
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: todo-app-example3/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: uv を導入
+        run: python -m pip install uv
+      - name: backend テスト（pytest・postgres サービスに対して）
+        run: uv run pytest -q
