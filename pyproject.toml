@@ -1,0 +1,28 @@
+# 検証網（第1部・檻と土台）の設定。
+# 方針: 実際のコードは gate（ruff/mypy/pytest）で緑に保つ。
+#       `*_hallucinated.py` は「わざと壊した教材用ファイル」なので gate からは除外し、
+#       型チェックが幻覚を捕まえる様子は mypy を単体で当てて実演する。
+
+[project]
+name = "ai-driven-dev-example"
+version = "0.0.0"
+description = "AI駆動開発の実践教材"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["*_hallucinated.py", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+# ディレクトリ指定時のみ除外が効く。ファイルを明示すると除外は無視され検査される（実演用）。
+exclude = ['_hallucinated\.py$', '\.venv/']
+
+[tool.pytest.ini_options]
+testpaths = ["experiments"]
+python_files = ["test_*.py"]
