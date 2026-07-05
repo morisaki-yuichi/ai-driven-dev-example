@@ -25,7 +25,7 @@ def build_record(data: dict[str, Any]) -> dict[str, Any]:
     tool_input: dict[str, Any] = ti if isinstance(ti, dict) else {}
     command = tool_input.get("command")
     return {
-        "ts": datetime.now(UTC).isoformat(timespec="seconds"),
+        "ts": datetime.now(UTC).isoformat(timespec="milliseconds"),
         "session_id": data.get("session_id"),
         "tool_name": data.get("tool_name"),
         "file_path": tool_input.get("file_path"),

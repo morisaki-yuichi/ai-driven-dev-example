@@ -21,7 +21,7 @@ jobs:
       - name: Lint (ruff)
         run: ruff check .
       - name: 型チェック (mypy)
-        run: mypy app experiments
+        run: mypy app experiments tools
       - name: テスト (pytest)
         run: pytest -q
 
