@@ -33,6 +33,9 @@ class Todo(SQLModel, table=True):
     description: str | None = Field(default=None, max_length=1000)
     due_date: date | None = None
     completed: bool = False
+    # 優先度。取りうる値は low/medium/high。入り口の検証は schemas の Literal で行う
+    # （table=True のモデルは Pydantic 検証を実行しないため、ここは既定値と最大長のみ）
+    priority: str = Field(default="medium", max_length=10)
     # 所有者。S2〜S3 の間は存在せず、既存データのマイグレーションつきで追加した
     user_id: int = Field(foreign_key="users.id", index=True)
     # タイムゾーンつき（timestamptz）で UTC を保存する。表示時の変換はフロントの仕事

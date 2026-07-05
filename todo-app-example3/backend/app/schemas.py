@@ -1,7 +1,11 @@
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import EmailStr, field_validator
 from sqlmodel import Field, SQLModel
+
+# TODO の優先度。取りうる値を1か所に定義し、Create/Update の入り口検証に使う。
+Priority = Literal["low", "medium", "high"]
 
 
 class UserCreate(SQLModel):
@@ -44,6 +48,7 @@ class TodoCreate(SQLModel):
     description: str | None = Field(default=None, max_length=1000)
     due_date: date | None = None  # 過去日も許可（仕様）
     completed: bool = False
+    priority: Priority = "medium"  # 省略時は medium
 
 
 class TodoUpdate(SQLModel):
@@ -58,6 +63,7 @@ class TodoUpdate(SQLModel):
     description: str | None = Field(default=None, max_length=1000)
     due_date: date | None = None
     completed: bool | None = None
+    priority: Priority | None = None
 
     @field_validator("title")
     @classmethod
@@ -80,6 +86,7 @@ class TodoRead(SQLModel):
     description: str | None
     due_date: date | None
     completed: bool
+    priority: str
     created_at: datetime
     updated_at: datetime
 
