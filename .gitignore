@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Node（example3 のフロントエンド取り込み時に使用）
+node_modules/
+dist/
+
+# OS / エディタ
+.DS_Store
+*.swp
+.idea/
+
+# 秘密情報 / ローカル環境
+.env
+.env.*
+!.env.example
+
+# Claude Code（ローカル上書きのみ無視。共有設定は追跡する）
+.claude/settings.local.json
