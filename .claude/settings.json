@@ -10,5 +10,55 @@
       "Bash(git add:*)",
       "Bash(git commit:*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".venv/bin/python .claude/hooks/guard.py",
+            "timeout": 10,
+            "statusMessage": "ガード hook を評価中"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".venv/bin/python .claude/hooks/ruff_fix.py",
+            "timeout": 40,
+            "statusMessage": "ruff --fix で自動整形中"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".venv/bin/python .claude/hooks/trace.py",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".venv/bin/pytest -q >/tmp/claude-stop-pytest.log 2>&1 || { echo 'Stop hook: pytest が赤です。検証網を緑にしてから終了してください（第5部）。' >&2; tail -n 15 /tmp/claude-stop-pytest.log >&2; exit 2; }",
+            "timeout": 120,
+            "statusMessage": "Stop hook: pytest を実行中"
+          }
+        ]
+      }
+    ]
   }
 }

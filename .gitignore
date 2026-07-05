@@ -23,3 +23,6 @@ dist/
 
 # Claude Code（ローカル上書きのみ無視。共有設定は追跡する）
 .claude/settings.local.json
+
+# hook のトレース出力（第6部の入力・実行時生成物。README だけ追跡する）
+docs/traces/*.jsonl
