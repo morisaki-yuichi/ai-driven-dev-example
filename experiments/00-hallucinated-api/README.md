@@ -52,8 +52,22 @@ AttributeError: 'str' object has no attribute 'slugify'
 | **実行 / import** | 上記のとおり `AttributeError` で即停止 | 速い（該当行に到達すれば） |
 | **テスト** | 受け入れ条件を固定しておけば、幻覚版に向けた瞬間に赤 | CI で自動・恒久 |
 
-> ここでは追加依存なしで再現できる **実行 と テスト** を実演した。型チェックは第1部で
-> 検証網として正式に組み込む（このリポジトリにはまだ mypy 等を入れていない）。
+### 型チェック網の実演（Sprint 1 で回収）
+
+Sprint 0 時点では追加依存なしで再現できる **実行 と テスト** のみ実演した。
+Sprint 1 で mypy を導入し、幻覚ファイルに直接当てると、**実行する前に**静的に捕まえる:
+
+```console
+$ .venv/bin/mypy experiments/00-hallucinated-api/make_slug_hallucinated.py
+.../make_slug_hallucinated.py:13: error: "str" has no attribute "slugify"  [attr-defined]
+.../make_slug_hallucinated.py:13: error: Returning Any from function declared to return "str"  [no-any-return]
+Found 2 errors in 1 file (checked 1 source file)
+```
+
+3層のうち **型チェックが最速**——コードを動かさずに幻覚を指摘する。だから CI は
+`ruff → mypy → pytest` の順に、安い網から当てる（[`.github/workflows/ci.yml`](../../.github/workflows/ci.yml)）。
+なおこの幻覚ファイルは意図的に壊してあるため、本体ゲート（`mypy experiments`）からは
+除外している（設定は [`pyproject.toml`](../../pyproject.toml)）。
 
 ## 修正（仕様を足して作り直す）
 
