@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "todo": {
+      "command": ".venv/bin/python",
+      "args": ["app/todo/mcp_server.py"]
+    }
+  }
+}
