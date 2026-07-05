@@ -23,6 +23,11 @@ strict = true
 # ディレクトリ指定時のみ除外が効く。ファイルを明示すると除外は無視され検査される（実演用）。
 exclude = ['_hallucinated\.py$', '\.venv/']
 
+# anthropic は eval の live 実行時のみの任意依存（.venv 未導入でもゲートを緑に保つ）。
+[[tool.mypy.overrides]]
+module = ["anthropic.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
-testpaths = ["experiments", "app", "tools"]
+testpaths = ["experiments", "app", "tools", "eval"]
 python_files = ["test_*.py"]
